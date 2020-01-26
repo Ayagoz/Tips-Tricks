@@ -22,7 +22,9 @@ class Dataset:
         self.data = self.data.drop(columns=[target])
         if drop is not None:
             self.data = self.data.drop(columns=drop)
-        if cat_preproc_type != 'no-preproc':
+        if cat_preproc_type == 'no-preproc':
+            self.X = self.data.values
+        else:
             self.cat_data = self.data.select_dtypes(include=['object']).copy()
 
             if cat_preproc_type == 'one-hot':
@@ -35,9 +37,13 @@ class Dataset:
                 raise ValueError("Categorical preprocessing type is not valid.")
 
             self.X = self.cat_data.join(self.data.select_dtypes(include=['int64', 'float64']))
+        
         self.transforms = None
         if transforms is not None:
-            self.transforms = transforms
+            if cat_preproc_type == 'no-preproc':
+                print('Transforming is impossible when "no-preproc"')
+            else:
+                self.transforms = transforms
 
     def get_data(self):
         if self.transforms is not None:
