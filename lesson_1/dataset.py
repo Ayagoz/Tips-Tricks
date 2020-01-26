@@ -3,7 +3,7 @@ import pandas as pd
 from utils import one_hot_encode, backward_encode, binary_encode
 
 class Dataset:
-    def __init__(self, path, target, cat_preproc_type='one-hot', drop=None, transforms=None):
+    def __init__(self, path, target, cat_preproc_type='one-hot', drop=None, transforms=None, columns=None):
         '''
         :param path: path to dataframe
         :param target: target column name
@@ -16,6 +16,8 @@ class Dataset:
         self.data = pd.read_csv(path, index_col=0)
         if 'index' in list(self.data.columns):
             self.data = pd.read_csv(path).drop(columns=['index'])
+        if columns is not None:
+            self.data.columns = columns
         self.y = self.data[target]
         self.data = self.data.drop(columns=[target])
         if drop is not None:
