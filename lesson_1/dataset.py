@@ -3,12 +3,12 @@ import pandas as pd
 from utils import one_hot_encode, backward_encode, binary_encode
 
 class Dataset:
-    def __init__(self, path, target, cat_preproc_type='one-hot', drop=None, transforms=None, columns=None):
+    def __init__(self, path, target, cat_preproc_type='one-hot', columns=None , drop=None, transforms=None):
         '''
         :param path: path to dataframe
         :param target: target column name
-        :param task_type: classification, regression: 'clf', 'reg'
-        :param cat_preproc_type: type of preprocessing for categorical data: 'one-hot', 'binary', 'backward'
+        :param cat_preproc_type: type of preprocessing for categorical data: 'no-preproc', 'one-hot', 'binary', 'backward'
+        :param columns: list of new column names or None, values of target and drop args have to be in this list 
         :param transforms: class Compose or Transform or None
         '''
 
