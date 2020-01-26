@@ -22,18 +22,19 @@ class Dataset:
         self.data = self.data.drop(columns=[target])
         if drop is not None:
             self.data = self.data.drop(columns=drop)
-        self.cat_data = self.data.select_dtypes(include=['object']).copy()
+        if cat_preproc_type != 'no-preproc':
+            self.cat_data = self.data.select_dtypes(include=['object']).copy()
 
-        if cat_preproc_type == 'one-hot':
-            self.cat_data = one_hot_encode(self.cat_data)
-        elif cat_preproc_type == 'binary':
-            self.cat_data = binary_encode(self.cat_data)
-        elif cat_preproc_type == 'backward':
-            self.cat_data = backward_encode(self.cat_data)
-        else:
-            raise ValueError("Categorical preprocessing type is not valid.")
+            if cat_preproc_type == 'one-hot':
+                self.cat_data = one_hot_encode(self.cat_data)
+            elif cat_preproc_type == 'binary':
+                self.cat_data = binary_encode(self.cat_data)
+            elif cat_preproc_type == 'backward':
+                self.cat_data = backward_encode(self.cat_data)
+            else:
+                raise ValueError("Categorical preprocessing type is not valid.")
 
-        self.X = self.cat_data.join(self.data.select_dtypes(include=['int64', 'float64']))
+            self.X = self.cat_data.join(self.data.select_dtypes(include=['int64', 'float64']))
         self.transforms = None
         if transforms is not None:
             self.transforms = transforms
