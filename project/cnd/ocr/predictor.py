@@ -1,10 +1,11 @@
 # HERE YOUR PREDICTOR
-from argus.model import load_model
+import torch
 
 
 class Predictor:
     def __init__(self, model_path, image_size, device="cuda"):
-        self.model = load_model(model_path, device=device)
+
+        self.model = torch.load(model_path).to(device)
         self.ocr_image_size = image_size
         self.transform =  #TODO: prediction_transform
 

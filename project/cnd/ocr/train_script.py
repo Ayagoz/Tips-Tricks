@@ -1,13 +1,12 @@
 import argparse
 
 from torch.utils.data import DataLoader
-from argus.callbacks import MonitorCheckpoint
 from cnd.ocr.dataset import OcrDataset
-from cnd.ocr.argus_model import CRNNModel
+from cnd.ocr.model import CRNN
 from cnd.config import OCR_EXPERIMENTS_DIR, CONFIG_PATH, Config
-from cnd.ocr.utils import regular, negative
 from cnd.ocr.transforms import get_transforms
-from cnd.ocr.metrics import StringAccuracy
+from cnd.ocr.metrics import WrapCTCLoss
+from catalyst.dl import SupervisedRunner, CheckpointCallback
 import string
 from pathlib import Path
 import torch
@@ -41,15 +40,10 @@ alphabet = " "
 alphabet += string.ascii_uppercase
 alphabet += "".join([str(i) for i in range(10)])
 
-MODEL_PARAMS = {"nn_module":
-                    ("CRNN", {
-                    }),
-                "alphabet": alphabet,
-                "loss": {},
-                "optimizer": ("Adam", {"lr": 0.0001}),
-                # CHANGE DEVICE IF YOU USE GPU
-                "device": "cpu",
-                }
+MODEL_PARAMS = {
+    # TODO: DEFINE PARAMS
+
+}
 
 if __name__ == "__main__":
     if EXPERIMENT_DIR.exists():
@@ -57,17 +51,17 @@ if __name__ == "__main__":
     else:
         EXPERIMENT_DIR.mkdir(parents=True, exist_ok=True)
 
-    transforms =  #TODO: define your transforms here
+    transforms =  # TODO: define your transforms here
     # define data path
 
-    train_dataset = # define your dataset
+    train_dataset =  # define your dataset
 
     train_loader = DataLoader(
         train_dataset,
         batch_size=BATCH_SIZE,
         shuffle=True,
         drop_last=True,
-        num_workers=1,
+        num_workers=6,
     )
     # IT IS BETTER TO SPLIT DATA INTO TRAIN|VAL AND USE METRICS ON VAL
     # val_dataset_paths = [p / "val" for p in DATASET_PATHS]
@@ -77,19 +71,23 @@ if __name__ == "__main__":
     #     val_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=4
     # )
 
-    model = CRNNModel(MODEL_PARAMS)
-    # YOU CAN ADD CALLBACK IF IT NEEDED, FIND MORE IN argus.callbacks
-    callbacks = [
-        MonitorCheckpoint(EXPERIMENT_DIR, monitor="train_loss", max_saves=6),
-    ]
-    # YOU CAN IMPLEMENT DIFFERENT METRICS AND USE THEM TO SEE HOW MANY CORRECT PREDICTION YOU HAVE
-    # metrics = [StringClassAccuracy()]
+    model = CRNN(**MODEL_PARAMS)
+    # YOU CAN ADD CALLBACK IF IT NEEDED, FIND MORE IN
+    optimizer = torch.optim.Adam(model.parameters())
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
+    # define callbacks if any
+    callbacks = [CheckpointCallback(save_n_best=10)]
+    # input_keys - which key from dataloader we need to pass to the model
+    runner = SupervisedRunner(input_key="image", input_target_key="targets")
 
-    model.fit(
-        train_loader,
-        # val_loader=val_loader,
-        max_epochs=NUM_EPOCHS,
-        # metrics=metrics,
-        callbacks=callbacks,
-        metrics_on_train=True,
+    runner.train(
+        model=model,
+        criterion=WrapCTCLoss(alphabet),
+        optimizer=optimizer,
+        scheduler=scheduler,
+        loaders={'train': train_loader, "valid": val_loader},
+        logdir="./logs/ocr",
+        num_epochs=NUM_EPOCHS,
+        verbose=True,
+        callbacks=callbacks
     )
