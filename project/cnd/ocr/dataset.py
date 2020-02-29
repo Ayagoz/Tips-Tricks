@@ -18,7 +18,7 @@ class OcrDataset(Dataset):
 
     def __getitem__(self, idx):
         img = imageio.imread(self.data[idx])
-        t = np.load(self.target[idx])
+        text = np.load(self.target[idx])
         # TODO: Apply transforms to img and target if it necessary
 
         return {"image": img[None],
