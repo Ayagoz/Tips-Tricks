@@ -1,7 +1,8 @@
-import cv2
+import imageio
 import numpy as np
 
 from torch.utils.data import Dataset
+
 
 
 class OcrDataset(Dataset):
@@ -11,14 +12,14 @@ class OcrDataset(Dataset):
         self.target = load(target_path)
         self.transforms = transforms
 
+
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, idx):
-        img = cv2.imread(self.data[idx])
+        img = imageio.imread(self.data[idx])
         t = np.load(self.target[idx])
         # TODO: Apply transforms to img and target if it necessary
 
-        return img, t
-
-
+        return {"image": img[None],
+                "targets": text}
