@@ -42,7 +42,7 @@ alphabet += string.ascii_uppercase
 alphabet += "".join([str(i) for i in range(10)])
 
 MODEL_PARAMS = {"nn_module":
-                    ("CRNN", {
+                    ("CRNN", { #DEFINE PARAMS OF YOUR MODEL
                     }),
                 "alphabet": alphabet,
                 "loss": {},
