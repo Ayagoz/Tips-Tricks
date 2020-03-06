@@ -1,1 +1,1 @@
-import cnd.ocr.argus_model
+import cnd.ocr.model
