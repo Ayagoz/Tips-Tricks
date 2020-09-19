@@ -1,7 +1,11 @@
 # Tips-Tricks
 Course for HSE 
+
+
 TODO:
 - Update tutorial (usage of branches)
+
+
 
 Instruction for next lessons:
 * Load [pyCharm professional](https://www.jetbrains.com/shop/eform/students).
